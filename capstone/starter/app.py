@@ -1,12 +1,31 @@
 import os
-from flask import Flask, request, abort, jsonify
+from flask import Flask, request, abort, jsonify , render_template, Response, flash, redirect, url_for
 from flask_sqlalchemy import SQLAlchemy
 from flask_cors import CORS
+import json
+import dateutil.parser
+import babel
+from flask import Flask, render_template, request, Response, flash, redirect, url_for
+from flask_moment import Moment
+import logging
+from logging import Formatter, FileHandler
+from flask_wtf import Form
+#from forms import *
+from flask_migrate import Migrate
 
+# app configuration # 
 def create_app(test_config=None):
   # create and configure the app
   app = Flask(__name__)
   CORS(app)
+  
+  moment = Moment(app)
+  app.config.from_object('config')
+  db = SQLAlchemy(app)
+  migrate = Migrate(app,db) # making an instance of Migrate Class and link it to the app and DB
+  app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://postgres:password@localhost:5432/capestone'
+  app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+  
 
   cors = CORS(app, resources={r"/api/*": {"origins": "*"}})
 
