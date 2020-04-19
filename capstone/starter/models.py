@@ -12,11 +12,12 @@ database_path ='postgresql://postgres:password@localhost:5432/capestone'
 db = SQLAlchemy()
 
 def setup_db(app, database_path=database_path):
+    app.config.from_object('config')
     app.config["SQLALCHEMY_DATABASE_URI"] = database_path
     app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
-    migrate = Migrate(app,db)
     db.app = app
     db.init_app(app)
+    migrate = Migrate(app,db)
     with app.app_context():
       db.create_all()
 
@@ -27,22 +28,27 @@ def setup_db(app, database_path=database_path):
 #----------------------------------------------------------------------------#
 # movie is the child and Actor is the parent 
 class Movie(db.Model):
-    __tablename__ = 'Movie'
-    #__searchable__= ["name","city","state","address"]
+    __tablename__ = 'movie'
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String, unique=True, nullable=False)
     city = db.Column(db.String(120), nullable=False)
     release_date = db.Column(db.String(120),nullable=False)
-    Actor_id = db.Column(db.Integer ,db.ForeignKey('Actor.id'),nullable=False)
+    Actors =db.relationship("helper_table", backref="movie")
+   
    
 class Actor(db.Model):
-    __tablename__ = 'Actor'
-    #__searchable__= ["name","city","state"]
+    __tablename__ = 'actor'
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String, unique=True, nullable=False)
     age = db.Column(db.Integer, nullable=False)
     gender = db.Column(db.String(120),nullable=False )  
-    shows_movie = db.relationship("Movie", backref="Actor")
+    Movies = db.relationship("helper_table", backref="actor")
+
+class helper_table(db.Model):
+    __tablename__ = 'helper_table'
+    Actor_id = db.Column(db.Integer ,db.ForeignKey('actor.id'),primary_key=True)
+    Movie_id = db.Column(db.Integer ,db.ForeignKey('movie.id'),primary_key=True)
+
     
 
 #db.create_all()

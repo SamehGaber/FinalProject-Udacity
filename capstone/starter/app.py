@@ -11,16 +11,15 @@ import logging
 from logging import Formatter, FileHandler
 from flask_wtf import Form
 from flask_migrate import Migrate
-from models import Movie , Actor ,setup_db 
+from models import Movie , Actor ,setup_db ,db
 # app configuration # 
 def create_app(test_config=None):
   # create and configure the app
   app = Flask(__name__)
   CORS(app)
   moment = Moment(app)
-  app.config.from_object('config')
   setup_db(app)
- 
+
   cors = CORS(app, resources={r"/api/*": {"origins": "*"}})
 
   '''
