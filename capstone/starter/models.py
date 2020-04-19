@@ -44,6 +44,36 @@ class Actor(db.Model):
     gender = db.Column(db.String(120),nullable=False )  
     Movies = db.relationship("helper_table", backref="actor")
 
+    def __init__(self, name, age, gender):
+      self.name = name
+      self.age = age
+      self.gender = gender
+      #self.Movies = Movies
+
+    def insert(self):
+      db.session.add(self)
+      db.session.commit()
+  
+    def update(self):
+      db.session.commit()
+
+    def delete(self):
+      db.session.delete(self)
+      db.session.commit()
+
+    def format(self):
+      return {
+        'id': self.id,
+        'name': self.name,
+        'age': self.age,
+        'gender': self.gender,
+        #'difficulty': self.difficulty
+      }
+
+
+  
+
+
 class helper_table(db.Model):
     __tablename__ = 'helper_table'
     Actor_id = db.Column(db.Integer ,db.ForeignKey('actor.id'),primary_key=True)

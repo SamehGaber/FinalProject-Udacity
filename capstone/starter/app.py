@@ -32,16 +32,104 @@ def create_app(test_config=None):
     response.headers.add('Access-Control-Allow-Origin' ,  'http://localhost:5000')
     return response 
 
-  '''
-  testing end point
-  '''
+  
+  #testing end point
+  
   @app.route('/hello', methods=['GET'])
   def test_api():
     return jsonify({
       'success': True ,
       'hello' : "hello there "
     })
+
+  #list all the actors 
+  @app.route('/actors', methods=['GET'])
+  def get_actors():
+    
+    actors = Actor.query.all()
+    formatted_actors = [actor.format() for actor in actors]
+    if len(formatted_actors) == 0:
+        abort(404)
+
+    return jsonify({
+      'success': True ,
+      'actors' : formatted_actors ,
+      'total_actors' : len(formatted_actors)
+    })
+   
+  # adding a new actor 
+  @app.route('/actors', methods=['post'])
+  def add_new_actor(): 
+    body = request.get_json()
+    name= body.get('name', None)
+    age= body.get('age', None)
+    gender= body.get('gender', None)
+    
+    
+    actor = Actor(name=name, age=age , gender=gender)
+    actor.insert()
+    actors = Actor.query.all()
+    formatted_actors = [actor.format() for actor in actors]
+
+    return jsonify ({
+      'success': True ,
+      'actors' : formatted_actors ,
+      'total_actors' : len(formatted_actors) ,
+      'created' : actor.id 
+      })
   
+  # updating  a specifc actor 
+  @app.route('/actors/<int:id>', methods=['PATCH'])
+  def update_actor(id):
+    actor = Actor.query.filter(Actor.id == id).one_or_none()
+    body = request.get_json()
+    actor.name = body.get('name', actor.name)
+    actor.age = body.get('age', actor.age)
+    actor.gender = body.get('gender', actor.gender)
+    actor.update()
+    actors = Actor.query.all()
+    formatted_actors = [actor.format() for actor in actors]
+
+    return jsonify ({
+      'success': True ,
+      'actors' : formatted_actors ,
+      'modified_actor' : id 
+      })
+  # deleting a specifc actor 
+  @app.route('/actors/<int:id>', methods=['DELETE'])
+  def delete_actor(id):
+    selected_actor=Actor.query.get(id)
+    selected_actor.delete()
+
+    if selected_actor is None:
+      abort(404)
+
+    return jsonify ({
+        'success': True ,
+        'deleted' : id 
+      })
+
+  
+
+  #Error Handeling 
+  @app.errorhandler(404)
+  def unprocessable(error):
+     return jsonify({
+       "success" : False,
+       "error" : 404 ,
+       "message" : "resource not found "
+     }) ,404
+
+
+
+
+
+
+
+
+    
+
+
 
   return app
 
