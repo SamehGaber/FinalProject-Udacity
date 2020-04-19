@@ -10,23 +10,17 @@ from flask_moment import Moment
 import logging
 from logging import Formatter, FileHandler
 from flask_wtf import Form
-#from forms import *
 from flask_migrate import Migrate
-
+from models import Movie , Actor ,setup_db 
 # app configuration # 
 def create_app(test_config=None):
   # create and configure the app
   app = Flask(__name__)
   CORS(app)
-  
   moment = Moment(app)
   app.config.from_object('config')
-  db = SQLAlchemy(app)
-  migrate = Migrate(app,db) # making an instance of Migrate Class and link it to the app and DB
-  app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://postgres:password@localhost:5432/capestone'
-  app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-  
-
+  setup_db(app)
+ 
   cors = CORS(app, resources={r"/api/*": {"origins": "*"}})
 
   '''

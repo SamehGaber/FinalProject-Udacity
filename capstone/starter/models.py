@@ -1,25 +1,27 @@
-import app.py from .
+#import app.py from .
+#import os
+from sqlalchemy import Column, String, Integer, create_engine
+from flask_sqlalchemy import SQLAlchemy
+#import json
+from flask_migrate import Migrate
 #----------------------------------------------------------------------------#
 # App Config.
 #----------------------------------------------------------------------------#
-'''
-app = Flask(__name__)
-moment = Moment(app)
-app.config.from_object('config')
-db = SQLAlchemy(app)
 
-# TODO: connect to a local postgresql database
-migrate = Migrate(app,db) # making an instance of Migrate Class and link it to the app and DB
-app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://postgres:password@localhost:5432/fyyur'
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+database_path ='postgresql://postgres:password@localhost:5432/capestone'
+db = SQLAlchemy()
 
-moment = Moment(app)
-app.config.from_object('config')
-db = SQLAlchemy(app)
-migrate = Migrate(app,db) # making an instance of Migrate Class and link it to the app and DB
-app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://postgres:password@localhost:5432/capestone'
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-'''
+def setup_db(app, database_path=database_path):
+    app.config["SQLALCHEMY_DATABASE_URI"] = database_path
+    app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
+    migrate = Migrate(app,db)
+    db.app = app
+    db.init_app(app)
+    with app.app_context():
+      db.create_all()
+
+
+    
 #----------------------------------------------------------------------------#
 # Models.
 #----------------------------------------------------------------------------#
@@ -32,7 +34,7 @@ class Movie(db.Model):
     city = db.Column(db.String(120), nullable=False)
     release_date = db.Column(db.String(120),nullable=False)
     Actor_id = db.Column(db.Integer ,db.ForeignKey('Actor.id'),nullable=False)
-    te
+   
 class Actor(db.Model):
     __tablename__ = 'Actor'
     #__searchable__= ["name","city","state"]
@@ -42,3 +44,5 @@ class Actor(db.Model):
     gender = db.Column(db.String(120),nullable=False )  
     shows_movie = db.relationship("Movie", backref="Actor")
     
+
+#db.create_all()
