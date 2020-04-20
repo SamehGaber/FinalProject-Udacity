@@ -109,7 +109,76 @@ def create_app(test_config=None):
         'deleted' : id 
       })
 
-  
+
+  #listing all the movies 
+  @app.route('/movies', methods=['GET'])
+  def get_movies():
+    
+    movies = Movie.query.all()
+    formatted_movies = [movie.format() for movie in movies]
+    if len(formatted_movies) == 0:
+        abort(404)
+
+    return jsonify({
+      'success': True ,
+      'actors' : formatted_movies ,
+      'total_actors' : len(formatted_movies)
+    })
+
+  # adding a new movie 
+  @app.route('/movies', methods=['post'])
+  def add_new_movie(): 
+    body = request.get_json()
+    title= body.get('title', None)
+    release_date= body.get('release_date', None)
+    actors=Actor.query.filter(Actor.id.in_(body.get('actors', None))).all()
+    print(actors)
+    movie = Movie(title=title, release_date=release_date )
+    movie.actors = actors
+    movie.insert()
+    movies = Movie.query.all()
+    formatted_movies = [movie.format() for movie in movies]
+
+    return jsonify ({
+      'success': True ,
+      'movies' : formatted_movies ,
+      'total_movies' : len(formatted_movies) ,
+      'created' : movie.id 
+      })
+      
+  #editing an exist movie 
+  @app.route('/movies/<int:id>', methods=['PATCH'])
+  def update_movie(id):
+    movie = Movie.query.filter(Movie.id == id).one_or_none()
+    body = request.get_json()
+    movie.title = body.get('title', None)
+    movie.release_date = body.get('release_date', None)
+    movie.actors = Actor.query.filter(Actor.id.in_(body.get('actors', None))).all()
+    movie.update()
+    movies = Movie.query.all()
+    formatted_movies = [movie.format() for movie in movies]
+
+    return jsonify ({
+      'success': True ,
+      'actors' : formatted_movies ,
+      'modified_movie' : id 
+      })
+
+  # deleting a specifc movie 
+  @app.route('/movies/<int:id>', methods=['DELETE'])
+  def delete_movie(id):
+    selected_movie=Movie.query.get(id)
+    selected_movie.delete()
+
+    if selected_movie is None:
+       abort(404)
+
+    return jsonify ({
+         'success': True ,
+         'deleted' : id 
+       })
+ 
+
 
   #Error Handeling 
   @app.errorhandler(404)
@@ -120,16 +189,22 @@ def create_app(test_config=None):
        "message" : "resource not found "
      }) ,404
 
+  @app.errorhandler(400)
+  def bad_request(error):
+     return jsonify({
+       "success" : False,
+       "error" : 400 ,
+       "message" : "bad request "
+     }) ,400
 
-
-
-
-
-
-
-    
-
-
+  @app.errorhandler(405)
+  def method_not_found(error):
+     return jsonify({
+       "success" : False,
+       "error" : 405 ,
+       "message" : "Method not found "
+     }) ,405
+  
 
   return app
 

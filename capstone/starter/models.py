@@ -31,9 +31,33 @@ class Movie(db.Model):
     __tablename__ = 'movie'
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String, unique=True, nullable=False)
-    city = db.Column(db.String(120), nullable=False)
     release_date = db.Column(db.String(120),nullable=False)
-    Actors =db.relationship("helper_table", backref="movie")
+    actors =db.relationship("helper_table", backref="movie")
+
+
+    def __init__(self, title, release_date):
+      self.title = title
+      self.release_date = release_date
+      
+
+    def insert(self):
+      db.session.add(self)
+      db.session.commit()
+  
+    def update(self):
+      db.session.commit()
+
+    def delete(self):
+      db.session.delete(self)
+      db.session.commit()
+
+    def format(self):
+      return {
+        'id': self.id,
+        'title': self.title,
+        'release_date': self.release_date,
+        'actors': [actor.id for actor in self.actors]
+      }
    
    
 class Actor(db.Model):
@@ -42,13 +66,13 @@ class Actor(db.Model):
     name = db.Column(db.String, unique=True, nullable=False)
     age = db.Column(db.Integer, nullable=False)
     gender = db.Column(db.String(120),nullable=False )  
-    Movies = db.relationship("helper_table", backref="actor")
+    movies = db.relationship("helper_table", backref="actor")
 
     def __init__(self, name, age, gender):
       self.name = name
       self.age = age
       self.gender = gender
-      #self.Movies = Movies
+      
 
     def insert(self):
       db.session.add(self)
@@ -67,7 +91,6 @@ class Actor(db.Model):
         'name': self.name,
         'age': self.age,
         'gender': self.gender,
-        #'difficulty': self.difficulty
       }
 
 
@@ -76,9 +99,7 @@ class Actor(db.Model):
 
 class helper_table(db.Model):
     __tablename__ = 'helper_table'
-    Actor_id = db.Column(db.Integer ,db.ForeignKey('actor.id'),primary_key=True)
-    Movie_id = db.Column(db.Integer ,db.ForeignKey('movie.id'),primary_key=True)
+    Actor_id = db.Column(db.Integer ,db.ForeignKey('actor.id'), primary_key=True)
+    Movie_id = db.Column(db.Integer ,db.ForeignKey('movie.id'), primary_key=True)
 
-    
 
-#db.create_all()
