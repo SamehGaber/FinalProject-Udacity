@@ -11,7 +11,7 @@ import logging
 from logging import Formatter, FileHandler
 from flask_wtf import Form
 from flask_migrate import Migrate
-from models import Movie , Actor ,setup_db ,db ,Helper_table
+from models import Movie , Actor ,setup_db ,db
 # app configuration # 
 def create_app(test_config=None):
   # create and configure the app
@@ -82,6 +82,8 @@ def create_app(test_config=None):
   @app.route('/actors/<int:id>', methods=['PATCH'])
   def update_actor(id):
     actor = Actor.query.filter(Actor.id == id).one_or_none()
+    if actor is None:
+       abort(404)
     body = request.get_json()
     actor.name = body.get('name', actor.name)
     actor.age = body.get('age', actor.age)
@@ -99,10 +101,9 @@ def create_app(test_config=None):
   @app.route('/actors/<int:id>', methods=['DELETE'])
   def delete_actor(id):
     selected_actor=Actor.query.get(id)
-    selected_actor.delete()
-
     if selected_actor is None:
       abort(404)
+    selected_actor.delete()
 
     return jsonify ({
         'success': True ,
@@ -150,6 +151,9 @@ def create_app(test_config=None):
   @app.route('/movies/<int:id>', methods=['PATCH'])
   def update_movie(id):
     movie = Movie.query.filter(Movie.id == id).one_or_none()
+    if movie is None:
+       abort(404)
+
     body = request.get_json()
     movie.title = body.get('title', None)
     movie.release_date = body.get('release_date', None)
@@ -160,7 +164,7 @@ def create_app(test_config=None):
 
     return jsonify ({
       'success': True ,
-      'actors' : formatted_movies ,
+      'movies' : formatted_movies ,
       'modified_movie' : id 
       })
 
@@ -168,10 +172,10 @@ def create_app(test_config=None):
   @app.route('/movies/<int:id>', methods=['DELETE'])
   def delete_movie(id):
     selected_movie=Movie.query.get(id)
-    selected_movie.delete()
-
     if selected_movie is None:
        abort(404)
+
+    selected_movie.delete()
 
     return jsonify ({
          'success': True ,
