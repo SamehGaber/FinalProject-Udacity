@@ -3,6 +3,9 @@ python-dateutil==2.6.0
 
 
 
+python-jose
+PyJWT
+
 
 config
 flask_wtf

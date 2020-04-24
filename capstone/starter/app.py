@@ -12,6 +12,8 @@ from logging import Formatter, FileHandler
 from flask_wtf import Form
 from flask_migrate import Migrate
 from models import Movie , Actor ,setup_db ,db
+from auth import AuthError, requires_auth , get_token_auth_header
+
 # app configuration # 
 def create_app(test_config=None):
   # create and configure the app
@@ -44,8 +46,8 @@ def create_app(test_config=None):
 
   #list all the actors 
   @app.route('/actors', methods=['GET'])
-  def get_actors():
-    
+  @requires_auth('get:actors')
+  def get_actors(self):
     actors = Actor.query.all()
     formatted_actors = [actor.format() for actor in actors]
     if len(formatted_actors) == 0:
@@ -59,7 +61,8 @@ def create_app(test_config=None):
    
   # adding a new actor 
   @app.route('/actors', methods=['post'])
-  def add_new_actor(): 
+  @requires_auth('post:actors')
+  def add_new_actor(self): 
     body = request.get_json()
     name= body.get('name', None)
     age= body.get('age', None)
@@ -80,6 +83,7 @@ def create_app(test_config=None):
   
   # updating  a specifc actor 
   @app.route('/actors/<int:id>', methods=['PATCH'])
+  @requires_auth('patch:actors')
   def update_actor(id):
     actor = Actor.query.filter(Actor.id == id).one_or_none()
     if actor is None:
@@ -99,6 +103,7 @@ def create_app(test_config=None):
       })
   # deleting a specifc actor 
   @app.route('/actors/<int:id>', methods=['DELETE'])
+  @requires_auth('delete:actors')
   def delete_actor(id):
     selected_actor=Actor.query.get(id)
     if selected_actor is None:
@@ -113,8 +118,8 @@ def create_app(test_config=None):
 
   #listing all the movies 
   @app.route('/movies', methods=['GET'])
-  def get_movies():
-    
+  @requires_auth('get:movies')
+  def get_movies(self):   
     movies = Movie.query.all()
     formatted_movies = [movie.format() for movie in movies]
     if len(formatted_movies) == 0:
@@ -128,7 +133,8 @@ def create_app(test_config=None):
 
   # adding a new movie 
   @app.route('/movies', methods=['post'])
-  def add_new_movie(): 
+  @requires_auth('post:movies')
+  def add_new_movie(self): 
     body = request.get_json()
     title= body.get('title', None)
     release_date= body.get('release_date', None)
@@ -149,6 +155,7 @@ def create_app(test_config=None):
       
   #editing an exist movie 
   @app.route('/movies/<int:id>', methods=['PATCH'])
+  @requires_auth('patch:movies')
   def update_movie(id):
     movie = Movie.query.filter(Movie.id == id).one_or_none()
     if movie is None:
@@ -170,6 +177,7 @@ def create_app(test_config=None):
 
   # deleting a specifc movie 
   @app.route('/movies/<int:id>', methods=['DELETE'])
+  @requires_auth('delete:movies')
   def delete_movie(id):
     selected_movie=Movie.query.get(id)
     if selected_movie is None:
