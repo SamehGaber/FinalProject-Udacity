@@ -17,7 +17,7 @@ from auth import AuthError, requires_auth , get_token_auth_header
 # app configuration # 
 def create_app(test_config=None):
   # create and configure the app
-  app = Flask(__name__)
+  app = Flask(__name__,template_folder='./templates')
   CORS(app)
   moment = Moment(app)
   setup_db(app)
@@ -43,6 +43,16 @@ def create_app(test_config=None):
       'success': True ,
       'hello' : "hello there "
     })
+
+  #login page API 
+  @app.route('/login', methods=['GET','POST'])
+  def index():
+    return render_template("index.html")
+
+  #login page call back API 
+  @app.route('/user-page', methods=['GET','POST'])
+  def user_logged():
+    return render_template("logged.html")
 
   #list all the actors 
   @app.route('/actors', methods=['GET'])
@@ -216,7 +226,13 @@ def create_app(test_config=None):
        "error" : 405 ,
        "message" : "Method not found "
      }) ,405
-  
+
+  @app.errorhandler(AuthError)
+  def handle_auth_error(ex):
+       response = jsonify(ex.error)
+       response.status_code = ex.status_code
+       return response
+
 
   return app
 
