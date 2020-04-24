@@ -11,7 +11,7 @@ import logging
 from logging import Formatter, FileHandler
 from flask_wtf import Form
 from flask_migrate import Migrate
-from models import Movie , Actor ,setup_db ,db
+from models import Movie , Actor ,setup_db ,db ,Helper_table
 # app configuration # 
 def create_app(test_config=None):
   # create and configure the app
@@ -121,8 +121,8 @@ def create_app(test_config=None):
 
     return jsonify({
       'success': True ,
-      'actors' : formatted_movies ,
-      'total_actors' : len(formatted_movies)
+      'movies' : formatted_movies ,
+      'total_movies' : len(formatted_movies)
     })
 
   # adding a new movie 

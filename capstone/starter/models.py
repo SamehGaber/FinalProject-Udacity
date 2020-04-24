@@ -32,13 +32,13 @@ class Movie(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String, unique=True, nullable=False)
     release_date = db.Column(db.String(120),nullable=False)
-    actors =db.relationship("Helper_table", backref="movie")
+    #actors =db.relationship("Helper_table", backref="movie")
+    actors = db.relationship("Actor", secondary="helper_table",backref="movies")
 
 
     def __init__(self, title, release_date):
       self.title = title
       self.release_date = release_date
-      
 
     def insert(self):
       db.session.add(self)
@@ -66,7 +66,7 @@ class Actor(db.Model):
     name = db.Column(db.String, unique=True, nullable=False)
     age = db.Column(db.Integer, nullable=False)
     gender = db.Column(db.String(120),nullable=False )  
-    movies = db.relationship("Helper_table", backref="actor")
+    #movies = db.relationship("Helper_table", backref="actor")
 
     def __init__(self, name, age, gender):
       self.name = name
